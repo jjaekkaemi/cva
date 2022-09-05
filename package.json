@@ -1,0 +1,55 @@
+{
+    "name": "cva",
+    "version": "0.0.1",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron .",
+        "deploy": "electron-builder --windows nsis:ia32"
+    },
+    "dependencies": {
+        "electron-store": "^8.1.0",
+        "robotjs": "^0.6.0",
+        "sqlite3": "^5.0.11"
+    },
+    "devDependencies": {
+        "electron": "^13.0.0",
+        "electron-builder": "^23.3.3",
+        "electron-rebuild": "^3.2.9",
+        "node-gyp": "^9.1.0",
+        "node-key-sender": "^1.0.11"
+    },
+    "build": {
+        "asar": false,
+        "appId": "com.kkaemi",
+        "productName": "cva",
+        "win": {
+            "target": [
+                {
+                    "target": "nsis",
+                    "arch": [
+                        "x64",
+                        "ia32"
+                    ]
+                }
+            ],
+            "icon": "./logo.ico"
+        },
+        "nsis": {
+            "oneClick": false,
+            "perMachine": false,
+            "createDesktopShortcut": true
+        },
+        "extraFiles": [
+            {
+                "from": "assets",
+                "to": "resources",
+                "filter": [
+                    "**/*"
+                ]
+            }
+        ],
+        "directories": {
+            "buildResources": "./resources/installer/"
+        }
+    }
+}

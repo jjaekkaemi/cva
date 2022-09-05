@@ -1,0 +1,84 @@
+<!-- <!doctype html>
+<html lang="en-US">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="utf-8" />
+    <title>Title</title>
+</head>
+
+<body>
+    <div class="titlebar">titlebar</div>
+    <button onclick="hide()">-</button>
+
+    <button onclick="exit()">x</button>
+    <button onclick="importPage('setting')">setting</button>
+    <button onclick="importPage('home')">home</button>
+    <div id="contents">
+
+    </div>
+    <script>
+        async function fetchHtmlAsText(url) {
+            return await (await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ a: 1, b: 'Textual content' })
+            })).text();
+        }
+
+        async function importPage(target) {
+            document.querySelector('#contents').innerHTML = await fetchHtmlAsText(target + '.html');
+        }
+        window.api.receive("fromMain", (data) => {
+            console.log(`Received [${data}] from main process`);
+        });
+        window.api.receive("close-clipboard", (data) => {
+            console.log(`Received [${data}] from main process`);
+        });
+        window.api.receive("open-clipboard", (data) => {
+            importPage('clipboard')
+            console.log(data)
+        });
+        function exit() {
+            console.log("exit")
+            window.api.send("exit", "exit");
+        }
+        function hide() {
+            window.api.send("hide", "hide");
+        }
+        importPage('home')
+    </script>
+</body>
+
+</html>
+
+<style>
+    .titlebar {
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
+        background-color: blue;
+    }
+
+    .titlebar-button {
+        -webkit-app-region: no-drag;
+    }
+</style> -->
+
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Component 8</title>
+</head>
+
+<body>
+    <h1>Example #8</h1>
+    <div id="app"></div>
+    <script src="src/main.js" type="module"></script>
+</body>
+
+</html>
