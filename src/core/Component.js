@@ -5,16 +5,21 @@ export default class Component {
   constructor ($target, $props) {
     this.$target = $target;
     this.$props = $props;
+    this.created()
     this.setup();
     this.setEvent();
     this.render();
   }
   setup () {};
+  created() {};
   mounted () {};
   template () { return ''; }
   render () {
     this.$target.innerHTML = this.template();
     this.mounted();
+  }
+  change() {
+    this.$target.innerHTML = this.template();
   }
   setEvent () {}
   setState (newState) {

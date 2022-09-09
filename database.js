@@ -30,7 +30,12 @@ async function listText(db) {
         );
     });
 }
-
+function deleteText(db, id) {
+    db.run(`DELETE FROM text WHERE id ='${id}'`,         
+    function (createResult) {
+        if (createResult) throw createResult;
+    })
+}
 function createDatabase(file) {
     let db = new sqlite3.Database(file);
     if (!fs.existsSync(file)) {
@@ -53,4 +58,4 @@ function createDatabase(file) {
 
     return db;
 }
-module.exports = { addText, displayText, listText, createDatabase };
+module.exports = { addText, displayText, listText, createDatabase, deleteText };

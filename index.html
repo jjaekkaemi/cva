@@ -76,9 +76,19 @@
 </head>
 
 <body>
-    <h1>Example #8</h1>
     <div id="app"></div>
     <script src="src/main.js" type="module"></script>
 </body>
 
 </html>
+<style>
+    .titlebar {
+        -webkit-user-select: none;
+        -webkit-app-region: drag;
+        background-color: blue;
+    }
+
+    .titlebar-button {
+        -webkit-app-region: no-drag;
+    }
+</style>

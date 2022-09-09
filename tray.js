@@ -10,8 +10,10 @@ function initTrayIconMenu(w, d, app, location) {
             label: "1번",
             type: "normal",
             checked: true,
-            click: () => {
+            click: async () => {
                 console.log("1번클릭!");
+                w.setFocusable(true)
+                w.webContents.send("open-main", await listText(db));
                 w.show();
             },
         },
@@ -29,7 +31,7 @@ function initTrayIconMenu(w, d, app, location) {
     tray.on("double-click", async () => {
         console.log("double click!!");
         w.setFocusable(true)
-        w.webContents.send("close-clipboard", await listText(db));
+        w.webContents.send("open-main", await listText(db));
         w.show();
     });
 }

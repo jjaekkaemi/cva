@@ -4,11 +4,12 @@ export default class Header extends Component {
 
   template() {
     const {nowComponent} = this.$props;
-    return `<button class="hide">-</button>
+    return `<div class="titlebar">titlebar</div>
+    <button class="hide">-</button>
 
     <button class="exit">x</button>
     <button class="setting" style="display: ${nowComponent===0 ? 'block' : 'none'}">setting</button>
-    <button class="home" style="display: ${nowComponent===0 ? 'none' : 'block'}">home</button>`;
+    <button class="home" style="display: ${nowComponent===1 ? 'block' : 'none'}">home</button>`;
     
   }
 

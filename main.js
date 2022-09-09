@@ -1,11 +1,10 @@
 const { app, BrowserWindow, ipcMain, clipboard } = require("electron");
-const { createDatabase } = require("./database.js");
-const { clipboardinit } = require("./clipboard.js")
+const { createDatabase, listText, deleteText } = require("./database.js");
+const { clipboardinit, clipboardUpdate } = require("./clipboard.js")
 const { initTrayIconMenu } = require("./tray.js");
 const path = require('path')
 const robot = require('robotjs')
-let win;
-
+let win, db;
 async function createWindow() {
 
     // Create the browser window.
@@ -26,9 +25,13 @@ async function createWindow() {
     // let db = createDatabase("database.db");
     // await clipboardinit(win, db)
     // initTrayIconMenu(win, db, app, path.join(process.resourcesPath, "logo.png"));
-    let db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
+    db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
     await clipboardinit(win, db)
     initTrayIconMenu(win, db, app, path.join(__dirname, "logo.ico"));
+    setTimeout(async () => {win.webContents.send("open-main", await listText(db))}, 500)
+    win.on("hide", () => {
+        // console.log("hide start")
+    });
 }
 app.setLoginItemSettings({
     openAtLogin: true,
@@ -47,10 +50,23 @@ ipcMain.on("hide", (event, data) => {
     win.webContents.send("fromMain", ' here is main! ');
     win.hide()
 });
-
+ipcMain.on("get-clipboard", async (event, data) => {
+    console.log(`Received [${data}] from renderer browser`);
+    win.webContents.send("return-clipboard", await listText(db));
+});
 ipcMain.on("click-clipboard", (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
     clipboard.writeText(data)
     robot.keyTap('v', process.platform === 'darwin' ? 'command' : 'control')
 
+});
+ipcMain.on("remove-clipboard", (event, data) => {
+    console.log(`Received [${data}] from renderer browser`);
+    deleteText(db, data)
+
+});
+
+ipcMain.on("change-key", (event, data) => {
+    console.log(`Received [${data}] from renderer browser`);
+    clipboardUpdate(data)
 });

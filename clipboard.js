@@ -8,7 +8,7 @@ let win = null;
 let db = null;
 clipboard
     .on("text-changed", () => {
-        let currentText = clipboard.readText().replace(/\'/g, "''");
+        let currentText = clipboard.readText().replaceAll(/\'/g, "''").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
         addText(db, currentText, new Date());
         console.log(currentText);
     })
@@ -43,7 +43,7 @@ async function clipboardCallback() {
     win.setFocusable(false)
 
 }
-function clipboardUpdate(shortcut, newshortcut) {
+function clipboardUpdate(newshortcut) {
     globalShortcut.unregisterAll();
 
     if (store.get("clipboardopen")) {

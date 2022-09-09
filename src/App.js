@@ -1,25 +1,15 @@
 import Component from "./core/Component.js";
-import Items from "./components/Items.js";
 import ItemAppender from "./components/ItemAppender.js";
 import Header from "./components/Header.js";
 import Setting from "./components/Setting.js"
+import Home from "./components/Home.js"
+import Clipboard from "./components/Clipboard.js"
 export default class App extends Component {
 
   setup() {
     this.$state = {
       change_component: 0,
-      items: [
-        {
-          seq: 1,
-          contents: 'item1',
-          active: false,
-        },
-        {
-          seq: 2,
-          contents: 'item2',
-          active: true,
-        }
-      ]
+      items: []
     };
     
     
@@ -28,12 +18,12 @@ export default class App extends Component {
   template() {
     return `
       <header data-component="header"></header>
-      <main data-component="items" style="display: ${this.nowComponent===0 ? 'block' : 'none'}"></main>
-      <main data-component="setting" style="display: ${this.nowComponent===0 ? 'none' : 'block'}"></main>
+      <main data-component="home" style="display: ${this.nowComponent===0 ? 'block' : 'none'}"></main>
+      <main data-component="clipboard" style="display: ${this.nowComponent===2 ? 'block' : 'none'}"></main>
+      <main data-component="setting" style="display: ${this.nowComponent===1 ? 'block' : 'none'}"></main>
     `;
   }
-
-  mounted() {
+  created(){
     window.api.receive("fromMain", (data) => {
       console.log(`Received [${data}] from main process`);
     });
@@ -41,18 +31,28 @@ export default class App extends Component {
       console.log(`Received [${data}] from main process`);
     });
     window.api.receive("open-clipboard", (data) => {
+      this.changeComponent(2)
       this.addItem(data)
-      console.log(data)
     });
+    window.api.receive("open-main", (data) => {
+      this.changeComponent(0)
+      this.addItem(data)
+    });
+  }
+  mounted() {
+
     const { filteredItems, addItem, deleteItem, toggleItem, changeComponent, nowComponent } = this;
     const $header = this.$target.querySelector('[data-component="header"]');
-    const $items = this.$target.querySelector('[data-component="items"]');
     const $setting = this.$target.querySelector('[data-component="setting"]');
-    
-    new Items($items, {
+    const $home = this.$target.querySelector('[data-component="home"]');
+    const $clipboard = this.$target.querySelector('[data-component="clipboard"]');
+    new Home($home, {
       filteredItems,
       deleteItem: deleteItem.bind(this),
       toggleItem: toggleItem.bind(this),
+    });
+    new Clipboard($clipboard, {
+      filteredItems,
     });
     new Setting($setting, {});
     new Header($header, {
@@ -80,17 +80,15 @@ export default class App extends Component {
   addItem(contents) {
     const { items } = this.$state;
     const seq = Math.max(0, ...items.map(v => v.seq)) + 1;
-    console.log(seq)
     const active = false;
-    console.log(contents)
     this.setState({
       items: contents
     });
   }
 
-  deleteItem(seq) {
+  deleteItem(id) {
     const items = [...this.$state.items];
-    items.splice(items.findIndex(v => v.seq === seq), 1);
+    items.splice(items.findIndex(v => v.id === id), 1);
     this.setState({ items });
   }
 
