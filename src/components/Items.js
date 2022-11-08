@@ -6,8 +6,9 @@ export default class Items extends Component {
     const { filteredItems } = this.$props;
     return `
       <ul>
-        ${filteredItems.map(({ id, value, datetime }) => `
-          <li class="listClick">${value}</li>
+        ${filteredItems.map(({ id, type, value, datetime }) => `
+          <li class="listClick">${type===0? value: 'img'}</li>
+          
         `).join('')}
       </ul>
     `

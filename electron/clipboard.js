@@ -1,23 +1,24 @@
 const clipboard = require("./copy.js");
 const { globalShortcut } = require("electron");
-const { listText, addText } = require("./database.js")
-
+const {  addData, getData } = require("./database.js")
 const Store = require("electron-store");
 const store = new Store();
 let win = null;
 let db = null;
+
 clipboard
     .on("text-changed", () => {
         let currentText = clipboard.readText().replaceAll(/\'/g, "''").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        addText(db, currentText, new Date());
+        addData(db, 0, currentText, new Date());
         console.log(currentText);
     })
     .once("text-changed", () => {
         console.log("TRIGGERED ONLY ONCE");
     })
-    .on("image-changed", () => {
-        let currentIMage = clipboard.readImage();
-        console.log(currentIMage);
+    .on("image-changed", async () => {
+        
+        const currentIMage = clipboard.readImage();
+        addData(db, 1, currentIMage.toDataURL(), new Date());
     })
     .startWatching();
 
@@ -34,9 +35,10 @@ async function clipboardinit(w, d) {
         store.set("clipboardopen", "Shift+V");
         globalShortcut.register("Shift+V", await clipboardCallback);
     }
+    return store.get("clipboardopen")
 }
 async function clipboardCallback() {
-    win.webContents.send("open-clipboard", await listText(db));
+    win.webContents.send("open-clipboard", await getData(db));
 
     win.show()
     win.setAlwaysOnTop(true)
@@ -44,6 +46,7 @@ async function clipboardCallback() {
 
 }
 function clipboardUpdate(newshortcut) {
+    console.log(newshortcut)
     globalShortcut.unregisterAll();
 
     if (store.get("clipboardopen")) {
@@ -51,5 +54,8 @@ function clipboardUpdate(newshortcut) {
     }
     globalShortcut.register(newshortcut, clipboardCallback);
     store.set("clipboardopen", newshortcut);
+
+    win.webContents.send("update-shortcut", store.get("clipboardopen"))
+
 }
 module.exports = { clipboard, clipboardUpdate, clipboardinit };

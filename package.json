@@ -1,7 +1,7 @@
 {
     "name": "cva",
     "version": "0.0.1",
-    "main": "main.js",
+    "main": "background.js",
     "scripts": {
         "start": "electron .",
         "deploy": "electron-builder --windows nsis:ia32"

@@ -1,14 +1,26 @@
 const sqlite3 = require("sqlite3").verbose();
 const fs = require("fs");
-function addText(db, value, datetime) {
-    db.run(
-        `INSERT INTO text(value, datetime) VALUES ('${value}', '${datetime}')`,
-        function (createResult) {
-            if (createResult) throw createResult;
-        }
-    );
-}
+let isAddData = true
 
+function changeIsAddData(bool){
+    isAddData = bool
+    console.log("changeIsAddData")
+    console.log(isAddData)
+}
+function addData(db, type, value, datetime) {
+    if(isAddData){
+        db.run(
+            `INSERT INTO data(type, value, datetime) VALUES ('${type}','${value}', '${datetime}')`,
+            function (createResult) {
+                if (createResult) throw createResult;
+            }
+        );
+    }
+    else{
+        changeIsAddData(true)
+    }
+
+}
 function displayText(id, value, datetime) {
     return {
         id: id,
@@ -17,10 +29,11 @@ function displayText(id, value, datetime) {
     };
 }
 
-async function listText(db) {
+
+async function getData(db){
     return new Promise(function (resolve, reject) {
         db.all(
-            "SELECT rowid AS id, value, datetime FROM text",
+            "SELECT rowid AS id, value, type, datetime FROM data",
             function (err, rows) {
                 if (err) {
                     return reject(err);
@@ -30,8 +43,9 @@ async function listText(db) {
         );
     });
 }
-function deleteText(db, id) {
-    db.run(`DELETE FROM text WHERE id ='${id}'`,         
+
+function deleteData(db, id) {
+    db.run(`DELETE FROM data WHERE id ='${id}'`,         
     function (createResult) {
         if (createResult) throw createResult;
     })
@@ -41,12 +55,10 @@ function createDatabase(file) {
     if (!fs.existsSync(file)) {
         fs.openSync(file, "w");
         let query =
-            "CREATE TABLE `text` ( `id` INTEGER primary key AUTOINCREMENT, 'value' TEXT, `datetime` TEXT )";
+            "CREATE TABLE `data` ( `id` INTEGER primary key AUTOINCREMENT, type INTEGER, value TEXT, `datetime` TEXT )";
         db.serialize(function () {
             db.run(query);
-            query =
-                "CREATE TABLE `image` ( `id` INTEGER primary key AUTOINCREMENT, 'value' TEXT, `datetime` TEXT )";
-            db.run(query);
+            
         });
         console.log("database initialized");
     }
@@ -58,4 +70,4 @@ function createDatabase(file) {
 
     return db;
 }
-module.exports = { addText, displayText, listText, createDatabase, deleteText };
+module.exports = { addData, displayText, createDatabase, deleteData, getData, changeIsAddData };
