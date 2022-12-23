@@ -25,10 +25,10 @@ async function createWindow() {
     win.webContents.openDevTools()  //랜더러에서 console창 보여주기
     win.loadFile(app.getAppPath() + "/index.html");
 
-    // let db = createDatabase("database.db");
+    db = createDatabase("database.db");
     // await clipboardinit(win, db)
     // initTrayIconMenu(win, db, app, path.join(process.resourcesPath, "logo.png"));
-    db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
+    // db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
     let shortcut = await clipboardinit(win, db)
     initTrayIconMenu(win, db, app, path.join(__dirname, "logo.ico"), shortcut);
     setTimeout(async () => {win.webContents.send("open-main", await getData(db))}, 500)
