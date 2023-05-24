@@ -4,7 +4,11 @@
     "main": "background.js",
     "scripts": {
         "start": "electron .",
-        "deploy": "electron-builder --windows nsis:ia32"
+        "build:osx": "electron-builder --mac",
+        "build:win32":"electron-builder --win --ia32",
+        "build:win64": "electron-builder --win --x64",
+        "build:win":"npm run build:win32 && npm run build:win64"
+    
     },
     "dependencies": {
         "electron-store": "^8.1.0",
@@ -22,6 +26,14 @@
         "asar": false,
         "appId": "com.kkaemi",
         "productName": "cva",
+        "mac":{
+            "target":["default"],
+            "icon": "./logo.ico"
+        },
+        "dmg":{
+            "title": "projectname",
+            "icon":"./logo.ico"
+        },
         "win": {
             "target": [
                 {

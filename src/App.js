@@ -35,6 +35,7 @@ export default class App extends Component {
       this.addItem(data)
     });
     window.api.receive("open-main", (data) => {
+      console.log(data)
       this.changeComponent(0)
       this.addItem(data)
     });

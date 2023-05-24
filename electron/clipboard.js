@@ -39,11 +39,10 @@ async function clipboardinit(w, d) {
 }
 async function clipboardCallback() {
     win.webContents.send("open-clipboard", await getData(db));
-
     win.show()
+    
     win.setAlwaysOnTop(true)
     win.setFocusable(false)
-
 }
 function clipboardUpdate(newshortcut) {
     console.log(newshortcut)

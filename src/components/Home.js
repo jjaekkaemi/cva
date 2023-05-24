@@ -16,9 +16,18 @@ export default class Home extends Component {
     const { deleteItem } = this.$props;
     
     this.addEvent('click', '.listClick', ({ target }) => {
-      // deleteItem(Number(target.id))
-      // window.api.send("remove-clipboard", Number(target.id));
-      console.log(target)
+      let target_id = 0
+      switch(target.tagName){
+        case "LI":
+          target_id = target.id
+          
+          break;
+        case "IMG":
+          target_id = target.parentElement.id
+          break;
+      }
+      deleteItem(Number(target_id))
+      window.api.send("remove-clipboard", Number(target_id));
     })
 
     //     this.addEvent('click', '.listClick', ({ target }) => {

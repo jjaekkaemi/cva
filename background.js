@@ -1,7 +1,7 @@
-const { app, BrowserWindow, ipcMain, clipboard, dialog, nativeImage } = require("electron");
-const { createDatabase,  changeIsAddData, getData, deleteData } = require("./electron/database.js");
+const { app, BrowserWindow, ipcMain, clipboard, dialog, nativeImage, screen, powerMonitor   } = require("electron");
+const { createDatabase,  changeIsAddData, getData, deleteData, deleteExpiredData, initialize, getNextData, getPreviousData, getCliboardData } = require("./electron/database.js");
 const { clipboardinit, clipboardUpdate } = require("./electron/clipboard.js")
-const { initTrayIconMenu } = require("./electron/tray.js");
+const { initTrayIconMenu, getClipbaordPeriod } = require("./electron/tray.js");
 const path = require('path')
 const fs = require('fs');
 const robot = require('robotjs')
@@ -29,18 +29,57 @@ async function createWindow() {
     // await clipboardinit(win, db)
     // initTrayIconMenu(win, db, app, path.join(process.resourcesPath, "logo.png"));
     db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
+    let cliboar_data = await initialize()
+    
+    console.log(cliboar_data)
     let shortcut = await clipboardinit(win, db)
+    
     initTrayIconMenu(win, db, app, path.join(__dirname, "logo.ico"), shortcut);
-    setTimeout(async () => {win.webContents.send("open-main", await getData(db))}, 500)
-    win.on("hide", () => {
-        // console.log("hide start")
-    });
+    // setTimeout(async () => {win.webContents.send("open-main", await getData(db))}, 500)
+    console.log(getCliboardData())
+    win.webContents.send("open-main", getCliboardData())
+    deleteExpiredData(db, getClipbaordPeriod())
+    startBackgroundTask();
+    console.log(getCliboardData())
+    
+    // // 앱이 준비되면 offscreen 윈도우를 생성합니다.
+    // globalOffscreenWindow.create();
+
+    // // offscreen 윈도우가 활성화되면 메인 윈도우를 숨깁니다.
+    // globalOffscreenWindow.on('focus', () => {
+    //     if (mainWindow) {
+    //         mainWindow.hide();
+    //     }
+    // });
+//     win.webContents.on('did-finish-load', () => {
+//     win.webContents.executeJavaScript(`
+//       const style = document.createElement('style');
+//       style.innerHTML = '* { cursor: inherit !important; }';
+//       document.head.appendChild(style);
+//     `);
+//   });
+    // win.hide()
+
+}
+// 앱이 준비되었을 때 실행될 함수
+function startBackgroundTask() {
+  // 하루의 밀리초 단위 시간
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  // 첫 실행을 오늘 자정으로 설정
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+  const initialDelay = nextMidnight.getTime() - now.getTime();
+
+  // 하루마다 특정 함수 실행
+  setInterval(() => {
+    deleteExpiredData(clipbaord_period)
+  }, oneDay, initialDelay);
 }
 app.setLoginItemSettings({
     openAtLogin: true,
 });
 app.on("ready", createWindow);
-
 
 
 ipcMain.on("exit", (event, data) => {
@@ -97,7 +136,7 @@ ipcMain.on("save-clipboard", (event, data) => {
         }
 
     }
-         dialog.showSaveDialog({
+    dialog.showSaveDialog({
         title: 'Select the File Path to save',
         defaultPath: path.join(__dirname, defaultpath),
         // defaultPath: path.join(__dirname, '../assets/'),
@@ -141,3 +180,17 @@ ipcMain.on("get-shortcut", (event, data) => {
     if(shortcut) win.webContents.send("return-shortcut", shortcut)
     else win.webContents.send("return-shortcut", "")
 });
+ipcMain.on("next-clicked", (event, data) => {
+    console.log(`Received [${data}] from renderer browser`);
+    getNextData(db)
+    
+});
+ipcMain.on("pre-clicked", (event, data) => {
+    console.log(`Received [${data}] from renderer browser`);
+    getPreviousData(db)
+});
+// db 10개씩 가져오기 next pre 버튼 으로 data 가져오기
+// 리스트안에 버튼있어서 삭제, 저장
+// 도움말
+// 스크롤 내려도 toolbar 유지
+// 첫시작하면 도움말  화면
