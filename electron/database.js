@@ -121,7 +121,7 @@ async function getNextData() {
 console.log("offset",offset)
   // 데이터 조회
   const query = `SELECT * FROM data LIMIT ${pageSize} OFFSET ${offset}`;
-  return await getLimitData(query)
+  clipboard_data = await getLimitData(query)
   
   // db.all(query, (err, rows) => {
   //   if (err) {
