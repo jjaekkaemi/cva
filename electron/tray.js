@@ -81,7 +81,6 @@ function initTrayIconMenu(w, d, app, location, shortcut) {
         
         // w.webContents.send("open-main", await getData(db));
         // console.log(await getData(db))
-        console.log(getCliboardData())
         w.webContents.send("open-main", getCliboardData())
         w.show();
         w.setAlwaysOnTop(false)

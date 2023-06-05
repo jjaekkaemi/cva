@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld(
         }
     },
     receive: (channel, func) => {
-        let validChannels = ["fromMain", "close-clipboard", "open-clipboard", "open-main"]; // IPC채널들 추가
+        let validChannels = ["fromMain", "close-clipboard", "open-clipboard", "open-main","receive-data"]; // IPC채널들 추가
         if (validChannels.includes(channel)) {
             ipcRenderer.on(channel, (event, ...args) => func(...args));
         }

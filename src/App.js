@@ -34,6 +34,9 @@ export default class App extends Component {
       this.changeComponent(2)
       this.addItem(data)
     });
+    window.api.receive("receive-data", (data) => {
+      this.addItem(data)
+    });
     window.api.receive("open-main", (data) => {
       console.log(data)
       this.changeComponent(0)
@@ -86,7 +89,6 @@ export default class App extends Component {
       items: contents
     });
   }
-
   deleteItem(id) {
     const items = [...this.$state.items];
     items.splice(items.findIndex(v => v.id === id), 1);

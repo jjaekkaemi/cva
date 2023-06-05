@@ -2,10 +2,11 @@ const sqlite3 = require("sqlite3").verbose();
 const fs = require("fs");
 let isAddData = true
 // 페이지 정보를 추적하는 변수
-let currentPage = 1;
+let currentPage = 0;
 let totalPage = 0;
 const pageSize = 10;
 let page_state = true;
+let totalData = 0;
 let db = null
 let clipboard_data = []
 function changeIsAddData(bool){
@@ -56,11 +57,23 @@ async function getData(db){
     });
 }
 
-function deleteData(db, id) {
+async function deleteData(db, id) {
     db.run(`DELETE FROM data WHERE id ='${id}'`,         
     function (createResult) {
         if (createResult) throw createResult;
     })
+    totalData--;
+    totalPage = Math.ceil(totalData / pageSize);
+
+    if (clipboard_data.length==1) {
+        currentPage--;
+    }
+    const offset = (currentPage - 1) * pageSize;
+
+    // 데이터 조회
+    const query = `SELECT * FROM data ORDER BY id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+    clipboard_data = await getLimitData(query)
+
 }
 function createDatabase(file) {
     db = new sqlite3.Database(file);
@@ -82,112 +95,71 @@ function createDatabase(file) {
 
     return db;
 }
-async function initialize() {
-  // 데이터의 총 개수 조회
-  const countQuery = `SELECT COUNT(*) AS total FROM data`;
-  db.get(countQuery, async (err, result) => {
-    if (err) {
-      console.error(err.message);
-      return;
-    }
 
-    const totalData = result.total;
-    totalPage = Math.ceil(totalData / pageSize);
-    console.log(totalData, totalPage)
-    // 초기 데이터 가져오기
-    return await getNextData();
-  });
-}
-async function getLimitData(query){
-  return new Promise(function (resolve, reject) {
+function getLimitData(query){
+  return new Promise((resolve, reject) => {
         db.all(
-            query,
-            function (err, rows) {
-                if (err) {
-                    return reject(err);
-                }
-                resolve(rows);
+            query,(err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
             }
         );
     });
 }
 async function getNextData() {
-    console.log("--------------------")
-    if (totalPage>=currentPage) {
-            if (!page_state) currentPage++;
-    page_state = true
-    console.log("currentPage",currentPage)
-  const offset = (currentPage - 1) * pageSize;
-console.log("offset",offset)
-  // 데이터 조회
-  const query = `SELECT * FROM data LIMIT ${pageSize} OFFSET ${offset}`;
-  clipboard_data = await getLimitData(query)
-  
-  // db.all(query, (err, rows) => {
-  //   if (err) {
-  //     console.error(err.message);
-  //     return;
-  //   }
-  //   clipboard_data = rows
-    // // 결과 처리
-    // rows.forEach(row => {
-    //   // 여기에서 가져온 데이터를 사용하는 로직을 작성하세요.
-    //   // console.log(row);
-    //   clipboard_data = row
-    // });
 
-    // 페이지 증가
-    
+  if (totalPage>currentPage) {
+    // if (!page_state) currentPage++;
+    // page_state = true
+
     currentPage++;
+    console.log("currentPage",currentPage)
+    const offset = (currentPage - 1) * pageSize;
 
-console.log("currentPage",currentPage)
-console.log("--------------------")
-    // // "이전" 버튼 활성화
-    // document.getElementById('previousButton').disabled = false;
-
-    // // 마지막 페이지에 도달하면 "다음" 버튼 비활성화
-    // if (currentPage > totalPage) {
-    //   document.getElementById('nextButton').disabled = true;
-    // }
+    // 데이터 조회
+    const query = `SELECT * FROM data ORDER BY id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+    clipboard_data = await getLimitData(query)
   
     }
-    return clipboard_data
 
 }
-function getPreviousData() {
+async function initialize() {
+  // 데이터의 총 개수 조회
+  const countQuery = `SELECT COUNT(*) AS total FROM data`;
+  await new Promise((resolve, reject) => {
+    db.get(countQuery, async (err, result) => {
+      if (err) {
+        console.error(err.message);
+        reject(err);
+      }
+
+      totalData = result.total;
+      totalPage = Math.ceil(totalData / pageSize);
+      console.log(totalData, totalPage)
+      // 초기 데이터 가져오기
+      await getNextData();
+      resolve();
+    });
+  });
+
+}
+
+
+async function getPreviousData() {
     console.log("--------------------")
-  if (currentPage > 2) {
     console.log("currentPage",currentPage)
-    if (page_state) currentPage--;
-    page_state = false
+  if (currentPage > 1) {
+    
+    // if (page_state) currentPage--;
+    // page_state = false
     currentPage--;
 
     const offset = (currentPage - 1) * pageSize;
     console.log("currentPage",currentPage)
 console.log("offset",offset)
     // 데이터 조회
-    const query = `SELECT * FROM data LIMIT ${pageSize} OFFSET ${offset}`;
-    db.all(query, (err, rows) => {
-      if (err) {
-        console.error(err.message);
-        return;
-      }
-      clipboard_data = rows
-    //   // 결과 처리
-      // rows.forEach(row => {
-      //   // 여기에서 가져온 데이터를 사용하는 로직을 작성하세요.
-      //   // console.log(row);
-      //   clipboard_data = row
-      // });
-console.log("--------------------")
-    //   // "다음" 버튼 활성화
-    //   document.getElementById('nextButton').disabled = false;
-
-    //   // 첫 페이지에서는 "이전" 버튼 비활성화
-    //   if (currentPage === 1) {
-    //     document.getElementById('previousButton').disabled = true;
-    //   }
-    });
+    const query = `SELECT * FROM data ORDER BY id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+    clipboard_data = await getLimitData(query)
   }
 }
 

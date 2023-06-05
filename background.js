@@ -9,7 +9,7 @@ const Store = require("electron-store");
 const store = new Store();
 let win, db;
 async function createWindow() {
-
+    
     // Create the browser window.
     win = new BrowserWindow({
         width: 800,
@@ -28,20 +28,18 @@ async function createWindow() {
     // db = createDatabase("database.db");
     // await clipboardinit(win, db)
     // initTrayIconMenu(win, db, app, path.join(process.resourcesPath, "logo.png"));
-    db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
-    let cliboar_data = await initialize()
     
-    console.log(cliboar_data)
+    
+    console.log(getCliboardData())
     let shortcut = await clipboardinit(win, db)
     
     initTrayIconMenu(win, db, app, path.join(__dirname, "logo.ico"), shortcut);
-    // setTimeout(async () => {win.webContents.send("open-main", await getData(db))}, 500)
-    console.log(getCliboardData())
-    win.webContents.send("open-main", getCliboardData())
+    // setTimeout(async () => {win.webContents.send("open-main", getCliboardData())}, 500)
+
+    
     deleteExpiredData(db, getClipbaordPeriod())
     startBackgroundTask();
-    console.log(getCliboardData())
-    
+    win.webContents.send("open-main", getCliboardData())
     // // 앱이 준비되면 offscreen 윈도우를 생성합니다.
     // globalOffscreenWindow.create();
 
@@ -58,8 +56,12 @@ async function createWindow() {
 //       document.head.appendChild(style);
 //     `);
 //   });
-    // win.hide()
+    win.hide()
 
+}
+async function getInit(){
+    await initialize()
+    console.log(getCliboardData())
 }
 // 앱이 준비되었을 때 실행될 함수
 function startBackgroundTask() {
@@ -79,7 +81,11 @@ function startBackgroundTask() {
 app.setLoginItemSettings({
     openAtLogin: true,
 });
-app.on("ready", createWindow);
+app.on("ready", async () => { 
+    db = createDatabase(path.join(app.getPath("userData"), "./database.db"));
+    await initialize()
+    await createWindow() 
+});
 
 
 ipcMain.on("exit", (event, data) => {
@@ -95,7 +101,7 @@ ipcMain.on("hide", (event, data) => {
 });
 ipcMain.on("get-clipboard", async (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
-    win.webContents.send("return-clipboard", await getData(db));
+    win.webContents.send("return-clipboard", getCliboardData());
 });
 ipcMain.on("click-clipboard", (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
@@ -163,10 +169,10 @@ ipcMain.on("save-clipboard", (event, data) => {
     });
        
 });
-ipcMain.on("remove-clipboard", (event, data) => {
+ipcMain.on("remove-clipboard", async (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
-    deleteData(db, data)
-
+    await deleteData(db, data)
+    win.webContents.send("receive-data", getCliboardData());
 });
 
 ipcMain.on("change-key", (event, data) => {
@@ -180,16 +186,19 @@ ipcMain.on("get-shortcut", (event, data) => {
     if(shortcut) win.webContents.send("return-shortcut", shortcut)
     else win.webContents.send("return-shortcut", "")
 });
-ipcMain.on("next-clicked", (event, data) => {
+ipcMain.on("next-clicked", async (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
-    getNextData(db)
+    await getNextData(db)
+    win.webContents.send("receive-data", getCliboardData());
     
 });
-ipcMain.on("pre-clicked", (event, data) => {
+ipcMain.on("pre-clicked", async (event, data) => {
     console.log(`Received [${data}] from renderer browser`);
-    getPreviousData(db)
+    await getPreviousData(db)
+    win.webContents.send("receive-data", getCliboardData());
 });
-// db 10개씩 가져오기 next pre 버튼 으로 data 가져오기
+// ok db 10개씩 가져오기 next pre 버튼 으로 data 가져오기, 10개 메인에서 가져오는 거는 됐으니까 clipboard에서 가져오기 pre, next도 반영 그리고 삭제 했을 때 땡겨지기, 뒤로 가져오기
+// 날짜 표시 하는데 같은 날까지 묶어서 
 // 리스트안에 버튼있어서 삭제, 저장
 // 도움말
 // 스크롤 내려도 toolbar 유지

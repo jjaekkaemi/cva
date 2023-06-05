@@ -1,6 +1,6 @@
 const clipboard = require("./copy.js");
 const { globalShortcut } = require("electron");
-const {  addData, getData } = require("./database.js")
+const {  addData, getData, getCliboardData } = require("./database.js")
 const Store = require("electron-store");
 const store = new Store();
 let win = null;
@@ -38,7 +38,7 @@ async function clipboardinit(w, d) {
     return store.get("clipboardopen")
 }
 async function clipboardCallback() {
-    win.webContents.send("open-clipboard", await getData(db));
+    win.webContents.send("open-clipboard", getCliboardData());
     win.show()
     
     win.setAlwaysOnTop(true)

@@ -20,6 +20,23 @@ export default class Clipboard extends Component {
     });
   }
   setEvent() {
+    // const { deleteItem } = this.$props;
+    
+    // this.addEvent('click', '.listClick', ({ target }) => {
+    //   let target_id = 0
+    //   switch(target.tagName){
+    //     case "LI":
+    //       target_id = target.id
+          
+    //       break;
+    //     case "IMG":
+    //       target_id = target.parentElement.id
+    //       break;
+    //   }
+    //   console.log(target_id)
+    //   // deleteItem(Number(target_id))
+    //   window.api.send("remove-clipboard", Number(target_id));
+    // })
     this.addEvent('click', '.pre-clicked', ({ target }) => {
       window.api.send("pre-clicked", "pre-clicked");
     })
