@@ -1,6 +1,6 @@
 const clipboard = require("./copy.js");
 const { globalShortcut } = require("electron");
-const {  addData, getData, getCliboardData } = require("./database.js")
+const {  addData, getData, getCliboardData, initialize } = require("./database.js")
 const Store = require("electron-store");
 const store = new Store();
 let win = null;
@@ -38,6 +38,7 @@ async function clipboardinit(w, d) {
     return store.get("clipboardopen")
 }
 async function clipboardCallback() {
+    await initialize()
     win.webContents.send("open-clipboard", getCliboardData());
     win.show()
     

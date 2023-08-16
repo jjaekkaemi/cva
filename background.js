@@ -198,8 +198,9 @@ ipcMain.on("pre-clicked", async (event, data) => {
     win.webContents.send("receive-data", getCliboardData());
 });
 // ok db 10개씩 가져오기 next pre 버튼 으로 data 가져오기, 10개 메인에서 가져오는 거는 됐으니까 clipboard에서 가져오기 pre, next도 반영 그리고 삭제 했을 때 땡겨지기, 뒤로 가져오기
-// 날짜 표시 하는데 같은 날까지 묶어서 
+// ok 날짜 표시 하는데 같은 날까지 묶어서 
+// ok 붙여넣기 할 때 칸 띄워지는거 수정하기
 // 리스트안에 버튼있어서 삭제, 저장
 // 도움말
-// 스크롤 내려도 toolbar 유지
+// ok 스크롤 내려도 toolbar 유지
 // 첫시작하면 도움말  화면

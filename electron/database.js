@@ -75,6 +75,13 @@ async function deleteData(db, id) {
     clipboard_data = await getLimitData(query)
 
 }
+
+function deleteAllData(db){
+    db.run(`DELETE FROM data ;`,         
+    function (createResult) {
+        if (createResult) throw createResult;
+    })
+}
 function createDatabase(file) {
     db = new sqlite3.Database(file);
     if (!fs.existsSync(file)) {

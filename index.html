@@ -91,4 +91,19 @@
     .titlebar-button {
         -webkit-app-region: no-drag;
     }
+
+.container {
+  display: flex; /* 컨테이너를 플렉스 박스로 설정 */
+  flex-direction: column; /* 컨테이너의 아이템들을 세로로 정렬 */
+  min-height: 100vh; /* 컨테이너의 최소 높이를 현재 보이는 창의 높이로 설정 */
+}
+
+.title {
+  position: sticky; /* titlebar를 고정 위치로 설정 */
+  top: 0; /* titlebar의 상단을 컨테이너의 상단에 고정 */
+  background-color: lightgray;
+  padding: 10px;
+  z-index: 1; /* 필요한 경우 titlebar를 다른 요소 위로 겹치기 위해 z-index 설정 */
+}
+
 </style>

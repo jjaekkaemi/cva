@@ -17,11 +17,13 @@ export default class App extends Component {
 
   template() {
     return `
-      <header data-component="header"></header>
-      <main data-component="home" style="display: ${this.nowComponent===0 ? 'block' : 'none'}"></main>
-      <main data-component="clipboard" style="display: ${this.nowComponent===2 ? 'block' : 'none'}"></main>
-      <main data-component="setting" style="display: ${this.nowComponent===1 ? 'block' : 'none'}"></main>
-    `;
+    <div class="container">
+      <header class="title" data-component="header"></header>
+      <main class="main" data-component="home" style="display: ${this.nowComponent===0 ? 'block' : 'none'}"></main>
+      <main class="main" data-component="clipboard" style="display: ${this.nowComponent===2 ? 'block' : 'none'}"></main>
+      <main class="main" data-component="setting" style="display: ${this.nowComponent===1 ? 'block' : 'none'}"></main>
+    </div>
+      `;
   }
   created(){
     window.api.receive("fromMain", (data) => {
