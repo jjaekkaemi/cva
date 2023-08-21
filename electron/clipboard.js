@@ -7,10 +7,11 @@ let win = null;
 let db = null;
 
 clipboard
-    .on("text-changed", () => {
+    .on("text-changed", async () => {
         let currentText = clipboard.readText().replaceAll(/\'/g, "''").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-        addData(db, 0, currentText, new Date());
+        await addData(db, 0, currentText, new Date());
         console.log(currentText);
+        win.webContents.send("receive-data", getCliboardData());
     })
     .once("text-changed", () => {
         console.log("TRIGGERED ONLY ONCE");
@@ -18,7 +19,8 @@ clipboard
     .on("image-changed", async () => {
         
         const currentIMage = clipboard.readImage();
-        addData(db, 1, currentIMage.toDataURL(), new Date());
+        await addData(db, 1, currentIMage.toDataURL(), new Date());
+        win.webContents.send("receive-data", getCliboardData());
     })
     .startWatching();
 

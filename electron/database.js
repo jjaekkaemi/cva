@@ -11,10 +11,9 @@ let db = null
 let clipboard_data = []
 function changeIsAddData(bool){
     isAddData = bool
-    console.log("changeIsAddData")
-    console.log(isAddData)
+
 }
-function addData(db, type, value, datetime) {
+async function addData(db, type, value, datetime) {
     if(isAddData){
         db.run(
             `INSERT INTO data(type, value, datetime) VALUES ('${type}','${value}', '${datetime.toISOString()}')`,
@@ -22,6 +21,15 @@ function addData(db, type, value, datetime) {
                 if (createResult) throw createResult;
             }
         );
+        totalData++;
+        totalPage = Math.ceil(totalData / pageSize);
+
+        const offset = (currentPage - 1) * pageSize;
+
+        // 데이터 조회
+        const query = `SELECT * FROM data ORDER BY id DESC LIMIT ${pageSize} OFFSET ${offset}`;
+        clipboard_data = await getLimitData(query)
+        
     }
     else{
         changeIsAddData(true)
@@ -133,6 +141,7 @@ async function getNextData() {
 async function initialize() {
   // 데이터의 총 개수 조회
   const countQuery = `SELECT COUNT(*) AS total FROM data`;
+  currentPage = 0
   await new Promise((resolve, reject) => {
     db.get(countQuery, async (err, result) => {
       if (err) {
